@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="mesecinamespace"
+    elementFormDefault="qualified" xmlns:mes="mesecinamespace">
+
+    <xs:simpleType name="Meseci">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="JANUAR"/>
+            <xs:enumeration value="FEBRUAR"/>
+            <xs:enumeration value="MART"/>
+            <xs:enumeration value="APRIL"/>
+            <xs:enumeration value="MAJ"/>
+            <xs:enumeration value="JUN"/>
+            <xs:enumeration value="JUL"/>
+            <xs:enumeration value="AUGUST"/>
+            <xs:enumeration value="SEPTEMBAR"/>
+            <xs:enumeration value="OKTOBAR"/>
+            <xs:enumeration value="NOVEMBAR"/>
+            <xs:enumeration value="DECEMBAR"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

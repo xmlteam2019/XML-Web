@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="agentmodel"
+    elementFormDefault="qualified" xmlns:amdl="agentmodel" xmlns:omdl="osobamodel">
+    <xs:import namespace="osobamodel" schemaLocation="Osoba.xsd"/>
+    <xs:complexType name="Agent">
+        <xs:complexContent>
+            <xs:extension base="omdl:Osoba">
+                <xs:sequence>
+                    <xs:element name="adresa" type="xs:string"/>
+                    <xs:element name="maticniBroj" type="xs:string"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="agent" type="amdl:Agent"/>
+</xs:schema>

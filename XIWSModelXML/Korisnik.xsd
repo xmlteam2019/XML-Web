@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:kmdl="korisnikmodel"
+    targetNamespace="korisnikmodel" elementFormDefault="qualified" xmlns:omdl="osobamodel">
+
+    <xs:import namespace="osobamodel" schemaLocation="Osoba.xsd"/>
+    <xs:complexType name="Korisnik">
+        <xs:complexContent>
+            <xs:extension base="omdl:Osoba"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="korisnik" type="kmdl:Korisnik"/>
+</xs:schema>

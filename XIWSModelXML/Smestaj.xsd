@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:smmdl="smestajmodel"
+    targetNamespace="smestajmodel" elementFormDefault="qualified" xmlns:mes="mesecinamespace">
+    <xs:import namespace="mesecinamespace" schemaLocation="Meseci.xsd"/>
+    <xs:simpleType name="TipSmestaja">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="HOTEL"/>
+            <xs:enumeration value="BED_AND_BREAKFAST"/>
+            <xs:enumeration value="APARTMAN"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="Usluge">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="PARKING"/>
+            <xs:enumeration value="WIFI"/>
+            <xs:enumeration value="DORUCAK"/>
+            <xs:enumeration value="POLU_PANSION"/>
+            <xs:enumeration value="PANSION"/>
+            <xs:enumeration value="ALL_INCLUSIVE"/>
+            <xs:enumeration value="KUCNI_LJUBIMCI"/>
+            <xs:enumeration value="TV"/>
+            <xs:enumeration value="KUHINJA"/>
+            <xs:enumeration value="PRIVATNO_KUPATILO"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="Lokacija">
+        <xs:sequence>
+            <xs:element name="drzava" type="xs:string"/>
+            <xs:element name="grad" type="xs:string"/>
+            <xs:element name="ulica" type="xs:string"/>
+            <xs:element name="broj" type="xs:string"/>
+            <xs:element name="koordinate" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="Slike">
+        <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="1" name="slika" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="DodatneUsluge">
+        <xs:sequence>
+            <xs:element name="entry" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="key" type="smmdl:Usluge"/>
+                        <xs:element name="value" type="xs:boolean"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TerminskiPlanCena">
+        <xs:sequence>
+            <xs:element name="entry" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="key" type="mes:Meseci"/>
+                        <xs:element name="value" type="xs:int"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="Smestaj">
+        <xs:sequence>
+            <xs:element name="lokacija" type="smmdl:Lokacija"/>
+            <xs:element name="tipSmestaja" type="smmdl:TipSmestaja"/>
+            <xs:element name="opis" type="xs:string"/>
+            <xs:element name="slike" type="smmdl:Slike"/>
+            <xs:element name="brojOsoba" type="xs:int"/>
+            <xs:element name="dodatneUsluge" type="smmdl:DodatneUsluge"/>
+            <xs:element name="datumOtkazivanja" type="xs:date"/>
+            <xs:element name="terminskiPlanCena" type="smmdl:TerminskiPlanCena"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:element name="smestaj" type="smmdl:Smestaj"/>
+</xs:schema>

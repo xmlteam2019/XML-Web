@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="osobamodel"
+    elementFormDefault="qualified" xmlns:omdl="osobamodel">
+    <xs:complexType abstract="true" name="Osoba">
+        <xs:sequence>
+            <xs:element name="ime" type="xs:string"/>
+            <xs:element name="prezime" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

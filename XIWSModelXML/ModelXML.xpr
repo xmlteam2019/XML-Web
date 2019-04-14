@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="17.1">
+    <meta>
+        <filters directoryPatterns="" filePatterns="" positiveFilePatterns="" showHiddenFiles="false"/>
+        <options/>
+    </meta>
+    <projectTree name="ModelXML.xpr">
+        <file name="Agent.xsd"/>
+        <file name="Korisnik.xsd"/>
+        <file name="Meseci.xsd"/>
+        <file name="Osoba.xsd"/>
+        <file name="Rezervacije.xsd"/>
+        <file name="Smestaj.xsd"/>
+    </projectTree>
+</project>
