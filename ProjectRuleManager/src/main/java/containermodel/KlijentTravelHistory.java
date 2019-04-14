@@ -1,6 +1,9 @@
-package model;
+package containermodel;
 
 import java.util.HashMap;
+
+import mainmodel.Klijent;
+import mainmodel.Smestaj;
 
 public class KlijentTravelHistory {
 	
@@ -32,6 +35,10 @@ public class KlijentTravelHistory {
 	
 	public void addSmestajToClientHistory(Klijent k, Smestaj s) {
 		((TravelDetails) travelHistory.get(k)).addNewSmestaj(s);
+	}
+	
+	public double getKlijentProsecnaUdaljenost(Klijent k) {
+		return ((TravelDetails) travelHistory.get(k)).getProsecnaUdaljenost();
 	}
 	
 }

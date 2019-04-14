@@ -2,7 +2,7 @@ package helperclasses;
 
 import java.util.ArrayList;
 
-import model.Smestaj;
+import mainmodel.Smestaj;
 
 public class UslugeCalculations {
 

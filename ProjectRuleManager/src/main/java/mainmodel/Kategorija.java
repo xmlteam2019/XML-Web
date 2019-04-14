@@ -1,4 +1,4 @@
-package model;
+package mainmodel;
 
 public enum Kategorija {
 	BRONZE,

@@ -1,4 +1,4 @@
-package model;
+package mainmodel;
 
 public class Klijent extends Osoba {
 
@@ -6,6 +6,18 @@ public class Klijent extends Osoba {
 	
 	public Klijent() {
 		kategorija = Kategorija.BRONZE;
+	}
+	
+	public Klijent(String ime, String prezime) {
+		this.ime = ime;
+		this.prezime = prezime;
+		kategorija = Kategorija.BRONZE;
+	}
+	
+	public Klijent(String ime, String prezime, Kategorija kategorija) {
+		this.ime = ime;
+		this.prezime = prezime;
+		this.kategorija = kategorija;
 	}
 	
 	public String getIme() {

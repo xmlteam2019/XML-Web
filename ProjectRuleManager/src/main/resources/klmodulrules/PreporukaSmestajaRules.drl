@@ -1,0 +1,34 @@
+package klmodelrules
+
+//list any import classes here.
+import mainmodel.Smestaj;
+import containermodel.MainContainer;
+import java.awt.geom.Point2D;
+import java.util.HashMap;
+
+//declare any global variables here
+
+global Point2D izabranaLokacija;
+global HashMap<Smestaj, double> udaljenostOdLokacije;
+global double prosecnaUdaljenost;
+
+
+rule "Udaljenost Smestaja Manja Od Prosecne"
+	salience 100
+    when
+    	$mainContainer: MainContainer()
+		$klijent: Klijent() from $mainContainer.getKlijentContainer()
+    then
+        //actions
+        System.out.println("NASAO JE KLIJENTA!!!");
+
+end
+
+rule "Your Second Rule"
+    //include attributes such as "salience" here...
+    when
+        //conditions
+    then
+        //actions
+
+end

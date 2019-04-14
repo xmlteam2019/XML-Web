@@ -1,4 +1,4 @@
-package model;
+package mainmodel;
 
 public abstract class Osoba {
 

@@ -1,12 +1,30 @@
-package model;
+package mainmodel;
 
 public class Lokacija {
 	private String drzava;
 	private String grad;
 	private String ulica;
 	private String broj;
-	private int coordX;
-	private int coordY;
+	private double coordX;
+	private double coordY;
+	
+	public Lokacija(String drzava, double coordX, double coordY) {
+		this.drzava = drzava;
+		grad = "";
+		ulica = "";
+		broj = "";
+		this.coordX = coordX;
+		this.coordY = coordY;		
+	}
+	
+	public Lokacija(String drzava, String grad, String ulica, String broj, double coordX, double coordY) {
+		this.drzava = drzava;
+		this.grad = grad;
+		this.ulica = ulica;
+		this.broj = broj;
+		this.coordX = coordX;
+		this.coordY = coordY;
+	}
 	
 	public String getDrzava() {
 		return drzava;
@@ -32,16 +50,16 @@ public class Lokacija {
 	public void setBroj(String broj) {
 		this.broj = broj;
 	}
-	public int getCoordX() {
+	public double getCoordX() {
 		return coordX;
 	}
-	public void setCoordX(int coordX) {
+	public void setCoordX(double coordX) {
 		this.coordX = coordX;
 	}
-	public int getCoordY() {
+	public double getCoordY() {
 		return coordY;
 	}
-	public void setCoordY(int coordY) {
+	public void setCoordY(double coordY) {
 		this.coordY = coordY;
 	}
 

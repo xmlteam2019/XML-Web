@@ -4,7 +4,7 @@ import java.awt.geom.Point2D;
 import java.lang.Math;
 import java.util.ArrayList;
 
-import model.Smestaj;
+import mainmodel.Smestaj;
 
 public class DistanceMath {
 	

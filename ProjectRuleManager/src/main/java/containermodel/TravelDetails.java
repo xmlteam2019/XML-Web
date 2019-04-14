@@ -1,16 +1,24 @@
-package model;
+package containermodel;
 
 import java.util.ArrayList;
 
 import helperclasses.DistanceMath;
 import helperclasses.UslugeCalculations;
+import mainmodel.Smestaj;
+import mainmodel.Smestaj.Usluga;
 
 public class TravelDetails {
 	
 	private ArrayList<Smestaj> smestaji;
 	private double prosecnaUdaljenost;
 	private ArrayList<Smestaj.Usluga> presekUsluga;
-
+	
+	public TravelDetails() {
+		smestaji = new ArrayList<Smestaj>();
+		prosecnaUdaljenost = 0;
+		presekUsluga = new ArrayList<Smestaj.Usluga>(); 
+	}
+	
 	public void calculateProsecnaUdaljenost(double selectedX, double selectedY) {
 		prosecnaUdaljenost = DistanceMath.calculateAverageDistance(selectedX, selectedY, smestaji);
 	}

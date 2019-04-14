@@ -1,4 +1,4 @@
-package model;
+package mainmodel;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,6 +39,47 @@ public class Smestaj {
 		kategorija = Kategorija.BRONZE;
 	}
 	
+	public Smestaj(Lokacija lokacija) {
+		this.lokacija = lokacija;
+		tipSmestaja = TipSmestaja.APARTMAN;
+		opis = "";
+		slike = new ArrayList<String>();
+		brojOsoba = 1;
+		dodatneUsluge = new HashMap<Usluga, Boolean>();
+		datumOdrzavanja = new Date();
+		terminskiPlanCena = new HashMap<Meseci, Integer>();
+		kategorija = Kategorija.BRONZE;
+	}
+	
+	public Smestaj(Lokacija lokacija, TipSmestaja tipSmestaja, String opis, ArrayList<String> slike, int brojOsoba,
+			HashMap<Usluga, Boolean> dodatneUsluge, Date datumOdrzavanja, HashMap<Meseci, Integer> terminskiPlanCena) {
+		this.lokacija = lokacija;
+		this.tipSmestaja = tipSmestaja;
+		this.opis = opis;
+		this.slike = slike;
+		this.brojOsoba = brojOsoba;
+		this.dodatneUsluge = dodatneUsluge;
+		this.datumOdrzavanja = datumOdrzavanja;
+		this.terminskiPlanCena = terminskiPlanCena;
+		kategorija = Kategorija.BRONZE;
+	}
+	
+	public Smestaj(Lokacija lokacija, TipSmestaja tipSmestaja, String opis, ArrayList<String> slike, int brojOsoba,
+			HashMap<Usluga, Boolean> dodatneUsluge, Date datumOdrzavanja, HashMap<Meseci, Integer> terminskiPlanCena,
+			Kategorija kategorija) {
+		this.lokacija = lokacija;
+		this.tipSmestaja = tipSmestaja;
+		this.opis = opis;
+		this.slike = slike;
+		this.brojOsoba = brojOsoba;
+		this.dodatneUsluge = dodatneUsluge;
+		this.datumOdrzavanja = datumOdrzavanja;
+		this.terminskiPlanCena = terminskiPlanCena;
+		this.kategorija = kategorija;
+	}
+
+
+
 	public Lokacija getLokacija() {
 		return lokacija;
 	}
