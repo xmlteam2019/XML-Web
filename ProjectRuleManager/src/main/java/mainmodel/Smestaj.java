@@ -51,6 +51,18 @@ public class Smestaj {
 		kategorija = Kategorija.BRONZE;
 	}
 	
+	public Smestaj(Lokacija lokacija, Kategorija kategorija) {
+		this.lokacija = lokacija;
+		tipSmestaja = TipSmestaja.APARTMAN;
+		opis = "";
+		slike = new ArrayList<String>();
+		brojOsoba = 1;
+		dodatneUsluge = new HashMap<Usluga, Boolean>();
+		datumOdrzavanja = new Date();
+		terminskiPlanCena = new HashMap<Meseci, Integer>();
+		this.kategorija = kategorija;
+	}
+	
 	public Smestaj(Lokacija lokacija, TipSmestaja tipSmestaja, String opis, ArrayList<String> slike, int brojOsoba,
 			HashMap<Usluga, Boolean> dodatneUsluge, Date datumOdrzavanja, HashMap<Meseci, Integer> terminskiPlanCena) {
 		this.lokacija = lokacija;

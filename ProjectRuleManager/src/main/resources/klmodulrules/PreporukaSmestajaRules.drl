@@ -1,34 +1,118 @@
 package klmodelrules
 
 //list any import classes here.
+import mainmodel.Klijent;
 import mainmodel.Smestaj;
+import mainmodel.Kategorija;
+import helperclasses.DistanceMath;
 import containermodel.MainContainer;
 import java.awt.geom.Point2D;
+import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 //declare any global variables here
 
-global Point2D izabranaLokacija;
-global HashMap<Smestaj, double> udaljenostOdLokacije;
-global double prosecnaUdaljenost;
+//global Point2D izabranaLokacija;
+//global HashMap<Smestaj, Double> distanceOdMesta;
 
-
-rule "Udaljenost Smestaja Manja Od Prosecne"
-	salience 100
+rule "Popunjavanje Mape Distanci"
+lock-on-active 
     when
-    	$mainContainer: MainContainer()
-		$klijent: Klijent() from $mainContainer.getKlijentContainer()
+    	$mainContainer : MainContainer()
+		$klijent : Klijent()
+		$smestaj : Smestaj() from $mainContainer.getSmestajContainer()
+		$izabranaLokacija: Point2D()
+		$distanceOdMesta: HashMap()
     then
-        //actions
-        System.out.println("NASAO JE KLIJENTA!!!");
-
+        //Double $udaljenost = DistanceMath.calculateDistance(
+        //$izabranaLokacija, 
+        //new Point2D.Double($smestaj.getLokacija().getCoordX(), $smestaj.getLokacija().getCoordY()));
+        //System.out.println("NASAO JE KLIJENTA!!!");
+        Double distanca = DistanceMath.calculateDistance($izabranaLokacija, $smestaj.getLokacija().getCoordinates());
+    	modify($distanceOdMesta){put($smestaj, distanca);}
+        System.out.println("Smestaj " + $smestaj.getLokacija().getDrzava() + " je pronadjen.");
+        System.out.println("Njegova razdaljina od izabrane lokacije je " + $distanceOdMesta.get($smestaj) + ".");
+        
 end
 
-rule "Your Second Rule"
-    //include attributes such as "salience" here...
-    when
-        //conditions
-    then
-        //actions
+rule "Utvrdjivanje Proseka"
 
+    when
+    	$mainContainer : MainContainer()
+		$klijent : Klijent()
+		$izabranaLokacija: Point2D()
+		$distanceOdMesta: HashMap()
+		$travelHistory: HashMap() from $mainContainer.getKlijentTravelHistory()
+		$distanceHistory: ArrayList() from accumulate( $smestaj : Smestaj() from $travelHistory.get($klijent),
+	        init( ArrayList<Smestaj> distanceHistory = new ArrayList<Smestaj>(); ),
+	        action( distanceHistory.add($smestaj); ),
+	        reverse( distanceHistory.remove($smestaj); ),
+	        result( distanceHistory )
+	    )
+    then
+    	//System.out.println("DUZINA DISTANCE OD MESTA MAPE JE: " + $distanceOdMesta.size());
+        //System.out.println("DUZINA DISTANCE HISTORY KOLEKCIJE JE: " + $distanceHistory.size());
+		Double prosecnaRazdaljina = DistanceMath.calculateAverageDistance($izabranaLokacija, $distanceHistory);
+		System.out.println("\nProsecna razdaljina je " + prosecnaRazdaljina + ".");
+		insert(prosecnaRazdaljina);
 end
+
+rule "Udaljenost Smestaja Manja Od Prosecne Vrednosti"
+
+    when
+		$mainContainer: MainContainer()
+		$klijent: Klijent()
+		$izabranaLokacija: Point2D()
+		$distanceOdMesta: HashMap()
+		$prosecnaRazdaljina: Double()
+		$recommendedSmestaji: ArrayList() from accumulate(
+			$smestaj : Smestaj() from $mainContainer.getSmestajContainer(),
+	        init( ArrayList<Smestaj> recommendedSmestaji = new ArrayList<Smestaj>(); ),
+	        action( 
+	        		if(Double.compare((Double) $distanceOdMesta.get($smestaj),$prosecnaRazdaljina) <= 0) {
+	        			recommendedSmestaji.add($smestaj);       
+	        		} 
+	        ),
+	        reverse( recommendedSmestaji.remove($smestaj); ),
+	        result( recommendedSmestaji )
+	    )
+    then
+        System.out.println("\nNakon filtriranja po udaljenosti, broj rezultata je " + $recommendedSmestaji.size() + ".");
+        //System.out.println("\nPredlozeni smestaji su: ");
+		insert($recommendedSmestaji);
+end
+
+rule "Kategorija Smestaja Ista Ili Veca Od Kategorije Klijenta"
+	no-loop
+    when
+    	$klijent: Klijent()
+		$recommendedSmestaji : ArrayList()
+		$recommendedSmestaji2 : ArrayList() from accumulate(
+			$smestaj : Smestaj(kategorija.ordinal() >= $klijent.getKategorija().ordinal()) from $recommendedSmestaji,
+			init( ArrayList<Smestaj> recommendedSmestaji2 = new ArrayList<Smestaj>(); ),
+	        action( recommendedSmestaji2.add($smestaj); ),
+	        reverse( recommendedSmestaji2.remove($smestaj); ),
+	        result( recommendedSmestaji2 )
+		)
+		//$smestaj : Smestaj(kategorija.ordinal() >= $klijent.getKategorija().ordinal()) from $recommendedSmestaji
+    then
+    	System.out.println("\nNakon filtriranja po kategoriji, broj rezultata je " + $recommendedSmestaji2.size() + ".\n");
+        delete($recommendedSmestaji)
+        insert($recommendedSmestaji2);
+end
+
+rule "Predlozi Smestaj"
+
+    when
+    	$distanceOdMesta: HashMap()
+		$recommendedSmestaji : ArrayList()
+		$smestaj : Smestaj() from $recommendedSmestaji
+    then
+        System.out.println("Predlozen je smestaj " + $smestaj.getLokacija().getDrzava()
+        				+ ", kategorije " + $smestaj.getKategorija().toString()
+        				+ ", na razdaljini " + $distanceOdMesta.get($smestaj) 
+        				+ " od izabrane lokacije.");
+end
+

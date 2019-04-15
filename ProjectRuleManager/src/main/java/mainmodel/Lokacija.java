@@ -1,5 +1,7 @@
 package mainmodel;
 
+import java.awt.geom.Point2D;
+
 public class Lokacija {
 	private String drzava;
 	private String grad;
@@ -61,6 +63,10 @@ public class Lokacija {
 	}
 	public void setCoordY(double coordY) {
 		this.coordY = coordY;
+	}
+
+	public Point2D getCoordinates() {
+		return new Point2D.Double(coordX, coordY);
 	}
 
 }

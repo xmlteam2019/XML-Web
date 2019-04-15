@@ -1,0 +1,64 @@
+//created on: Apr 15, 2019
+package klmodulrules
+
+//list any import classes here.
+
+import java.util.Date;
+import containermodel.Rezervacija;
+import mainmodel.Klijent;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
+//declare any global variables here
+
+
+rule "Razlika u Danima"
+	lock-on-active 
+    when
+        $trenutniDatum : Date()
+        $rezervacija : Rezervacija()
+        $razlikaUDanima : HashMap()
+    then
+    	Long diff = $trenutniDatum.getTime() - $rezervacija.getDatumZakazivanja().getTime();
+    	Integer diffDays = (int) (diff / (24 * 60 * 60 * 1000));
+    	modify($razlikaUDanima) {put($rezervacija, diffDays)}
+    	System.out.println("Dodata je nova razlika u danima. Iznosi " + $razlikaUDanima.get($rezervacija) + ".");
+    	
+end
+
+rule "Last-Minute"
+	lock-on-active 
+    when
+        //$klijent : Klijent()
+        $trenutniDatum : Date()
+        $rezervacija : Rezervacija(
+        	datumZakazivanja.getDay() == $trenutniDatum.getDay()
+        	&& datumZakazivanja.getMonth() == $trenutniDatum.getMonth()
+        	&& datumZakazivanja.getYear() == $trenutniDatum.getYear()
+        )
+    then
+    	modify($rezervacija){ setPopust(50); }
+        System.out.println("\nRezervacija je pronadjena u okviru Last-Minute rule-a. \nObavljena je danas, "
+        					+ $rezervacija.getDatumZakazivanja() + ".\nTada je rezervisan smestaj "
+        					+ $rezervacija.getSmestaj().getLokacija().getDrzava() + ".\nNa ovu rezervaciju je dat popust od "
+        					+ $rezervacija.getPopust() + "%.");
+
+end
+
+rule "Early-Bird"
+    when
+    	$trenutniDatum : Date()
+    	$razlikeUDanima : HashMap()
+    	$entry : Entry() from $razlikeUDanima.entrySet()
+    	$rezervacija : Rezervacija() from $entry.getKey()
+    	$razlika : Integer() from $entry.getValue()
+    	Boolean(booleanValue == true) from $razlika >= 90
+    then
+    	modify($rezervacija){ setPopust(25); }
+    	        System.out.println("\nRezervacija je pronadjena u okviru Early-Bird rule-a. \nObavljena je "
+    	       				+ $rezervacija.getDatumZakazivanja() + ", pre " + $razlika + " dana.\nTada je rezervisan smestaj "
+        				   	+ $rezervacija.getSmestaj().getLokacija().getDrzava()
+        				   	+ ".\nNa ovu rezervaciju je dat popust od " + $rezervacija.getPopust() + "%.");
+
+end

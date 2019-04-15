@@ -13,12 +13,22 @@ public class MainContainer {
 	private ArrayList<Agent> agentContainer;
 	private ArrayList<Smestaj> smestajContainer;
 	private HashMap<Klijent, ArrayList<Smestaj>> travelHistory;
+	private HashMap<Klijent, ArrayList<Rezervacija>> reservationHistory;
 	
+	public HashMap<Klijent, ArrayList<Rezervacija>> getReservationHistory() {
+		return reservationHistory;
+	}
+
+	public void setReservationHistory(HashMap<Klijent, ArrayList<Rezervacija>> reservationHistory) {
+		this.reservationHistory = reservationHistory;
+	}
+
 	public MainContainer() {
 		klijentContainer = new ArrayList<Klijent>();
 		agentContainer = new ArrayList<Agent>();
 		smestajContainer = new ArrayList<Smestaj>();
 		travelHistory = new HashMap<Klijent, ArrayList<Smestaj>>();
+		reservationHistory = new HashMap<Klijent, ArrayList<Rezervacija>>();
 	}
 	
 	public ArrayList<Klijent> getKlijentContainer() {
@@ -56,10 +66,24 @@ public class MainContainer {
 	public void dodajNovogKlijenta(Klijent k) {
 		klijentContainer.add(k);
 		travelHistory.put(k, new ArrayList<Smestaj>());
+		reservationHistory.put(k, new ArrayList<Rezervacija>());
 	}
 
 	public void dodajNoviSmestaj(Smestaj s) {
 		smestajContainer.add(s);
+	}
+
+	public void dodajSmestajUTravelHistory(Klijent k, Smestaj s) {
+		((ArrayList<Smestaj>) travelHistory.get(k)).add(s);		
+	}
+	
+	public Boolean klijentJeBioUSmestaju(Klijent k, Smestaj s) {
+		return travelHistory.get(k).contains(s);		
+	}
+
+	public void dodajRezervacijuUReservationHistory(Klijent k, Rezervacija r) {
+		((ArrayList<Rezervacija>) reservationHistory.get(k)).add(r);
+		
 	}
 	
 }
