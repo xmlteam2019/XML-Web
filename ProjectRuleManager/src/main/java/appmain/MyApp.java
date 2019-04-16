@@ -22,8 +22,8 @@ public class MyApp {
 		//pokreniPreporukuSmestaja();
 		//pokreniDodeluPopusta();
 		//pokreniCenuOtkazivanja();
-		//pokreniKategorijuSmestaja();
-		pokreniKategorijuKlijenta();
+		pokreniKategorijuSmestaja();
+		//pokreniKategorijuKlijenta();
 	}
 	
 	public static void pokreniPreporukuSmestaja() {
