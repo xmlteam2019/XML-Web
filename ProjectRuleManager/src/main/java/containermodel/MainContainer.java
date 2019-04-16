@@ -14,14 +14,6 @@ public class MainContainer {
 	private ArrayList<Smestaj> smestajContainer;
 	private HashMap<Klijent, ArrayList<Smestaj>> travelHistory;
 	private HashMap<Klijent, ArrayList<Rezervacija>> reservationHistory;
-	
-	public HashMap<Klijent, ArrayList<Rezervacija>> getReservationHistory() {
-		return reservationHistory;
-	}
-
-	public void setReservationHistory(HashMap<Klijent, ArrayList<Rezervacija>> reservationHistory) {
-		this.reservationHistory = reservationHistory;
-	}
 
 	public MainContainer() {
 		klijentContainer = new ArrayList<Klijent>();
@@ -29,6 +21,14 @@ public class MainContainer {
 		smestajContainer = new ArrayList<Smestaj>();
 		travelHistory = new HashMap<Klijent, ArrayList<Smestaj>>();
 		reservationHistory = new HashMap<Klijent, ArrayList<Rezervacija>>();
+	}
+	
+	public HashMap<Klijent, ArrayList<Rezervacija>> getReservationHistory() {
+		return reservationHistory;
+	}
+
+	public void setReservationHistory(HashMap<Klijent, ArrayList<Rezervacija>> reservationHistory) {
+		this.reservationHistory = reservationHistory;
 	}
 	
 	public ArrayList<Klijent> getKlijentContainer() {

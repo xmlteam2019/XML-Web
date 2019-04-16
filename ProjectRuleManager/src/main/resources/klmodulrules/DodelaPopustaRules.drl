@@ -1,16 +1,12 @@
-//created on: Apr 15, 2019
 package klmodulrules
-
-//list any import classes here.
 
 import java.util.Date;
 import containermodel.Rezervacija;
 import mainmodel.Klijent;
+import helperclasses.DateMath;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-//declare any global variables here
 
 
 rule "Razlika u Danima"
@@ -20,11 +16,11 @@ rule "Razlika u Danima"
         $rezervacija : Rezervacija()
         $razlikaUDanima : HashMap()
     then
-    	Long diff = $trenutniDatum.getTime() - $rezervacija.getDatumZakazivanja().getTime();
-    	Integer diffDays = (int) (diff / (24 * 60 * 60 * 1000));
+    	//Long diff = $trenutniDatum.getTime() - $rezervacija.getDatumZakazivanja().getTime();
+    	//Integer diffDays = (int) (diff / (24 * 60 * 60 * 1000));
+    	Integer diffDays = DateMath.calculateDateDistanceInDays($trenutniDatum, $rezervacija.getDatumZakazivanja());
     	modify($razlikaUDanima) {put($rezervacija, diffDays)}
     	System.out.println("Dodata je nova razlika u danima. Iznosi " + $razlikaUDanima.get($rezervacija) + ".");
-    	
 end
 
 rule "Last-Minute"

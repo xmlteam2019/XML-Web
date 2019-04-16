@@ -1,0 +1,136 @@
+package admodulrules
+
+//list any import classes here.
+
+import mainmodel.Klijent;
+import mainmodel.Smestaj;
+import mainmodel.Kategorija;
+import containermodel.Rezervacija;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Date;
+
+//declare any global variables here
+
+global HashMap<Klijent, Integer> klijentRegistracije;
+global HashMap<Rezervacija, Integer> daniOdRezervacije;
+
+
+rule "Dodeli Klijentu BRONZE"
+	lock-on-active
+    when
+        $klijent : Klijent(kategorija == null)
+    then
+    	System.out.println("\nPronadjen je klijent " + $klijent.getIme() + " " + $klijent.getPrezime() + ".");
+    	System.out.println("Stara kategorija mu je " + $klijent.getKategorija() + ".");
+    	modify($klijent) {setKategorija(Kategorija.BRONZE);}
+        System.out.println("Nakon izmene, nova kategorija mu je " + $klijent.getKategorija() + ".");
+end
+
+rule "Dodeli Klijentu SILVER - Dani Od Registracije"
+	lock-on-active
+    when
+        $klijent : Klijent()
+        //$daniOdRezervacije : HashMap()
+        $entry : Entry($klijent2 : getKey(),
+						$dani : getValue(),
+						((Klijent)$klijent2).equals($klijent),
+						$dani >= 185) from klijentRegistracije.entrySet()
+						
+		Number(doubleValue >= 300) from accumulate(
+			$rezervacija : Rezervacija($klijent3 : klijent,
+									   $ukupnaCena : ukupnaCena,
+									   ((Klijent)$klijent3).equals($klijent)),
+			sum($ukupnaCena)
+		)
+    then
+        System.out.println("\nPronadjen je klijent " + $klijent.getIme() + " " + $klijent.getPrezime()
+        					+ " U rule-u za registraciju(SILVER).");
+    	System.out.println("Stara kategorija mu je " + $klijent.getKategorija() + ".");
+    	modify($klijent) {setKategorija(Kategorija.SILVER);}
+        System.out.println("Nakon izmene, nova kategorija mu je " + $klijent.getKategorija() + ".");
+end
+
+rule "Dodeli Klijentu SILVER - Broj Rezervacija"
+	lock-on-active
+    when
+        $klijent : Klijent()
+        //$daniOdRezervacije : HashMap()
+        
+        Number(intValue >= 2) from accumulate(
+			$rezervacija : Rezervacija($klijent2 : klijent,
+									   $datumOtkazivanja : datumOtkazivanja,
+									   ((Klijent)$klijent2).equals($klijent),
+									   $datumOtkazivanja == null),
+			init( int count = 0; ),
+	        action( count++; ),
+	        reverse( count--; ),
+	        result( count )
+		)
+		
+		Number(doubleValue >= 300) from accumulate(
+			$rezervacija : Rezervacija($klijent3 : klijent,
+									   $ukupnaCena : ukupnaCena,
+									   ((Klijent)$klijent3).equals($klijent)),
+			sum($ukupnaCena)
+		)
+    then
+        System.out.println("\nPronadjen je klijent " + $klijent.getIme() + " " + $klijent.getPrezime()
+        					+ " U rule-u za broj rezervacija(SILVER).");
+    	System.out.println("Stara kategorija mu je " + $klijent.getKategorija() + ".");
+    	modify($klijent) {setKategorija(Kategorija.SILVER);}
+        System.out.println("Nakon izmene, nova kategorija mu je " + $klijent.getKategorija() + ".");
+end
+
+rule "Dodeli Klijentu GOLD"
+	lock-on-active
+    when
+        $klijent : Klijent()
+        Number(intValue >= 10) from accumulate(
+			$rezervacija : Rezervacija($klijent2 : klijent,
+									   $datumOtkazivanja : datumOtkazivanja,
+									   ((Klijent)$klijent2).equals($klijent),
+									   $datumOtkazivanja == null),
+			init( int count = 0; ),
+	        action( count++; ),
+	        reverse( count--; ),
+	        result( count )
+		)
+		exists(Rezervacija($klijent3 : klijent,
+									   $smestaj : smestaj,
+									   ((Klijent)$klijent3).equals($klijent),
+									   ((Smestaj)$smestaj).kategorija.ordinal >= Kategorija.GOLD.ordinal))
+    then
+    	System.out.println("\nPronadjen je klijent " + $klijent.getIme() + " " + $klijent.getPrezime() + ".");
+    	System.out.println("Stara kategorija mu je " + $klijent.getKategorija() + ".");
+    	modify($klijent) {setKategorija(Kategorija.GOLD);}
+        System.out.println("Nakon izmene, nova kategorija mu je " + $klijent.getKategorija() + ".");
+end
+
+rule "Dodeli Klijentu PLATINUM"
+	lock-on-active
+    when
+        $klijent : Klijent()
+        $rezervacije : ArrayList() from accumulate(
+			$entry : Entry($rezervacija : getKey(),
+						   $dani : getValue(),
+						   ((Rezervacija) $rezervacija).klijent.equals($klijent)
+						   && $dani <= 365) from daniOdRezervacije.entrySet(),
+			init( ArrayList<Rezervacija> rezervacije = new ArrayList<Rezervacija>(); ),
+	        action( rezervacije.add((Rezervacija) $rezervacija); ),
+	        reverse( rezervacije.remove((Rezervacija) $rezervacija); ),
+	        result( rezervacije )
+		)
+		
+		$profit : Number(doubleValue > 2000) from accumulate(
+			$rezervacija : Rezervacija($ukupnaCena : ukupnaCena) from $rezervacije,
+			sum($ukupnaCena)
+		)
+    then
+    	System.out.println("\nPronadjen je klijent " + $klijent.getIme() + " " + $klijent.getPrezime() + ".");
+    	System.out.println("Ukupan prihod je " + $profit + ".");
+    	System.out.println("Stara kategorija mu je " + $klijent.getKategorija() + ".");
+    	modify($klijent) {setKategorija(Kategorija.PLATINUM);}
+        System.out.println("Nakon izmene, nova kategorija mu je " + $klijent.getKategorija() + ".");
+end

@@ -1,0 +1,77 @@
+package klmodulrules
+
+import java.util.ArrayList;
+
+import containermodel.Rezervacija;
+
+
+
+
+rule "Otkazuje Od 3 Do 15 Dana"
+	lock-on-active
+    when
+        $rezervacija : Rezervacija(razlikaUDanima >= 3 && razlikaUDanima < 15)
+    then
+    	modify($rezervacija){ setPopust(50); }
+        System.out.println("\nRezervacija je otkazana Od 3 Do 15 Dana. \nObavljena "
+        					+ $rezervacija.getDatumZakazivanja() + ".\nTada je rezervisan smestaj "
+        					+ $rezervacija.getSmestaj().getLokacija().getDrzava() + ".\nOtkazan je "
+        					+ $rezervacija.getDatumOtkazivanja() + ".\nRazlika u danima je "
+        					+ $rezervacija.getRazlikaUDanima() + ".\nNaplacuje se " + $rezervacija.getPopust()
+        					+ "% cene otkazivanja.");
+end
+
+rule "Otkazuje Od 15 Do 30 Dana"
+	lock-on-active
+    when
+        $rezervacija : Rezervacija(razlikaUDanima >= 15 && razlikaUDanima < 30)
+    then
+    	modify($rezervacija){ setPopust(30); }
+        System.out.println("\nRezervacija je otkazana Od 15 Do 30 Dana. \nObavljena "
+        					+ $rezervacija.getDatumZakazivanja() + ".\nTada je rezervisan smestaj "
+        					+ $rezervacija.getSmestaj().getLokacija().getDrzava() + ".\nOtkazan je "
+        					+ $rezervacija.getDatumOtkazivanja() + ".\nRazlika u danima je "
+        					+ $rezervacija.getRazlikaUDanima() + ".\nNaplacuje se " + $rezervacija.getPopust()
+        					+ "% cene otkazivanja.");
+end
+
+rule "Da Li Je Otkazan Izmedju Dve Rezervacije"
+	lock-on-active
+    when
+    	$rezervacije : ArrayList() from accumulate(
+    		$r1 : Rezervacija(razlikaUDanima >= 15 && razlikaUDanima < 30),
+    		init( ArrayList<Rezervacija> rezervacije = new ArrayList<Rezervacija>(); ),
+	        action( rezervacije.add($r1); ),
+	        reverse( rezervacije.remove($r1); ),
+	        result( rezervacije )
+    	)
+    	$rezervacija : Rezervacija($datumZakazivanja : datumZakazivanja,
+    							   $doKadaJeZakazano : doKadaJeZakazano,
+    							   datumOtkazivanja != null)
+    	exists(Rezervacija(smestaj.equals($rezervacija.smestaj)
+    					   && doKadaJeZakazano.before($datumZakazivanja)))
+    	exists(Rezervacija(smestaj.equals($rezervacija.smestaj)
+    					   && datumZakazivanja.after($doKadaJeZakazano)))
+    	
+        //$rezervacija : Rezervacija(razlikaUDanima >= 15 && razlikaUDanima < 30)
+    then
+    	modify($rezervacija){ setPopust(55); }
+        System.out.println("\nRezervacija je otkazana izmedju dve rezervacije. \nObavljena "
+        					+ $rezervacija.getDatumZakazivanja() + ".\nTada je rezervisan smestaj "
+        					+ $rezervacija.getSmestaj().getLokacija().getDrzava() + ".\nOtkazan je "
+        					+ $rezervacija.getDatumOtkazivanja() + ".\nNaplacuje se " + $rezervacija.getPopust()
+        					+ "% cene otkazivanja.");
+end
+
+rule "Otkazuje Pre Barem 30 Dana"
+	lock-on-active
+    when
+        $rezervacija : Rezervacija(razlikaUDanima >= 30)
+    then
+    	modify($rezervacija){ setPopust(0); }
+        System.out.println("\nRezervacija je otkazana pre barem 30 dana. \nObavljena "
+        					+ $rezervacija.getDatumZakazivanja() + ".\nTada je rezervisan smestaj "
+        					+ $rezervacija.getSmestaj().getLokacija().getDrzava() + ".\nOtkazan je "
+        					+ $rezervacija.getDatumOtkazivanja() + ".\nRazlika u danima je "
+        					+ $rezervacija.getRazlikaUDanima() + ".\nCena otkazivanja je besplatna.");
+end

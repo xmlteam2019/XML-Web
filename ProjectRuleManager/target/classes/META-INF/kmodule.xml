@@ -6,6 +6,9 @@
     <kbase name="klmodulrules" packages="klmodulrules">
         <ksession name="klijent-modul-rules"/>
     </kbase>
+    <kbase name="admodulrules" packages="admodulrules">
+        <ksession name="admin-modul-rules"/>
+    </kbase>
     <kbase name="dtables" packages="dtables">
         <ksession name="ksession-dtables"/>
     </kbase>

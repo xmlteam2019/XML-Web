@@ -1,0 +1,110 @@
+package admodulrules
+
+import mainmodel.Smestaj;
+import mainmodel.Kategorija;
+import containermodel.Rezervacija;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.ArrayList;
+
+
+
+
+rule "Dodeli Smestaju BRONZE"
+	lock-on-active
+    when
+        $smestaj : Smestaj(rating == null || rating <= 2)
+    then
+    	System.out.println("\nPronadjen je smestaj " + $smestaj.getLokacija().getDrzava() + ".");
+    	System.out.println("Stara kategorija mu je " + $smestaj.getKategorija() + ".");
+    	modify($smestaj) {setKategorija(Kategorija.BRONZE);}
+        System.out.println("Nakon izmene, nova kategorija mu je " + $smestaj.getKategorija() + ".");
+
+end
+
+rule "Dodeli Smestaju SILVER"
+	lock-on-active
+    when
+    	$smestaj : Smestaj(rating > 2)
+        $daniOdRezervacije : HashMap()
+		Number(intValue >= 3) from accumulate(
+			$entry : Entry($rezervacija : getKey(),
+						   $dani : getValue(),
+						   ((Rezervacija) $rezervacija).smestaj.equals($smestaj) && $dani <= 90) from $daniOdRezervacije.entrySet(),
+			init( int count = 0; ),
+	        action( count++; ),
+	        reverse( count--; ),
+	        result( count )
+		)
+    then
+    	System.out.println("\nPronadjen je smestaj " + $smestaj.getLokacija().getDrzava() + ".");
+    	System.out.println("Stara kategorija mu je " + $smestaj.getKategorija() + ".");
+    	modify($smestaj) {setKategorija(Kategorija.SILVER);}
+        System.out.println("Nakon izmene, nova kategorija mu je " + $smestaj.getKategorija() + ".");
+end
+
+rule "Dodeli Smestaju GOLD"
+	lock-on-active
+    when
+    	$smestaj : Smestaj(rating > 3)
+        $daniOdRezervacije : HashMap()
+        
+		pronadjeneRezervacije : HashMap(size >= 2) from accumulate(
+			$entry : Entry($rezervacija : getKey(),
+						   $dani : getValue(),
+						   ((Rezervacija) $rezervacija).smestaj.equals($smestaj)
+						   && ((Rezervacija) $rezervacija).rating >= 4.0
+						   && $dani <= 30) from $daniOdRezervacije.entrySet(),
+			init( HashMap<Rezervacija,Integer> rezervacije = new HashMap<Rezervacija,Integer>(); ),
+	        action( rezervacije.put((Rezervacija)$rezervacija, (Integer) $dani); ),
+	        reverse( rezervacije.remove($rezervacija); ),
+	        result( rezervacije )
+		)
+		
+		$minimalna : Number() from accumulate(
+			$entry2 : Entry($dani : getValue()) from pronadjeneRezervacije.entrySet(),
+			min($dani)
+		)
+		
+		$entry2 : Entry($rezervacija2 : getKey(),
+						$dani2 : getValue(),
+						((Rezervacija)$rezervacija2).rating >= 3,
+						$dani2 == $minimalna) from pronadjeneRezervacije.entrySet()
+    then
+    	System.out.println("\nPronadjen je smestaj " + $smestaj.getLokacija().getDrzava() + ".");
+    	System.out.println("Stara kategorija mu je " + $smestaj.getKategorija() + ".");
+    	modify($smestaj) {setKategorija(Kategorija.GOLD);}
+        System.out.println("Nakon izmene, nova kategorija mu je " + $smestaj.getKategorija() + ".");
+end
+
+rule "Dodeli Smestaju PLATINUM"
+
+    when
+        $smestaj : Smestaj(rating > 3 && kategorija == Kategorija.GOLD)
+        $daniOdRezervacije : HashMap()
+        
+		pronadjeneRezervacije : ArrayList() from accumulate(
+			$entry : Entry($rezervacija : getKey(),
+						   $dani : getValue(),
+						   ((Rezervacija) $rezervacija).smestaj.equals($smestaj)
+						   && $dani <= 90) from $daniOdRezervacije.entrySet(),
+			init( ArrayList<Rezervacija> rezervacije = new ArrayList<Rezervacija>(); ),
+	        action( rezervacije.add((Rezervacija)$rezervacija); ),
+	        reverse( rezervacije.remove($rezervacija); ),
+	        result( rezervacije )
+		)
+		
+		$profit : Number(doubleValue >= 1000) from accumulate(
+			$rezervacija2 : Rezervacija($ukupnaCena : ukupnaCena) from pronadjeneRezervacije,
+			sum($ukupnaCena)
+		)
+		
+    then
+    	System.out.println("\nPronadjen je smestaj " + $smestaj.getLokacija().getDrzava() + ".");
+    	System.out.println("Ukupan profit u poslednjih 90 dana je " + $profit.doubleValue() + ".");
+    	System.out.println("Stara kategorija mu je " + $smestaj.getKategorija() + ".");
+    	modify($smestaj) {setKategorija(Kategorija.PLATINUM);}
+        System.out.println("Nakon izmene, nova kategorija mu je " + $smestaj.getKategorija() + ".");
+
+end

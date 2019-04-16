@@ -1,8 +1,13 @@
 package mainmodel;
 
+import java.util.Date;
+
+import helperclasses.DateMath;
+
 public class Klijent extends Osoba {
 
 	private Kategorija kategorija;
+	private Date datumRegistracije = new Date();
 	
 	public Klijent() {
 		kategorija = Kategorija.BRONZE;
@@ -39,6 +44,19 @@ public class Klijent extends Osoba {
 	
 	public void setKategorija(Kategorija kategorija) {
 		this.kategorija = kategorija;
+	}
+
+	public Date getDatumRegistracije() {
+		return datumRegistracije;
+	}
+
+	public void setDatumRegistracije(Date datumRegistracije) {
+		this.datumRegistracije = datumRegistracije;
+	}
+
+	public void unesiDatumPrekoStringa(String string) {
+		datumRegistracije = DateMath.getDateFromString(string);
+		
 	}
 	
 }

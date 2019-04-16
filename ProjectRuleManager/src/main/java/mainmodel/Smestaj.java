@@ -34,6 +34,7 @@ public class Smestaj {
 	private Date datumOdrzavanja;
 	private HashMap<Meseci, Integer> terminskiPlanCena;
 	private Kategorija kategorija;
+	private Double rating = null;
 	
 	public Smestaj() {
 		kategorija = Kategorija.BRONZE;
@@ -92,6 +93,19 @@ public class Smestaj {
 
 
 
+	public Smestaj(Lokacija lokacija, Double i) {
+		this.lokacija = lokacija;
+		tipSmestaja = TipSmestaja.APARTMAN;
+		opis = "";
+		slike = new ArrayList<String>();
+		brojOsoba = 1;
+		dodatneUsluge = new HashMap<Usluga, Boolean>();
+		datumOdrzavanja = new Date();
+		terminskiPlanCena = new HashMap<Meseci, Integer>();
+		kategorija = Kategorija.BRONZE;
+		rating = i;
+	}
+
 	public Lokacija getLokacija() {
 		return lokacija;
 	}
@@ -147,6 +161,14 @@ public class Smestaj {
 
 	public void setKategorija(Kategorija kategorija) {
 		this.kategorija = kategorija;
+	}
+
+	public Double getRating() {
+		return rating;
+	}
+
+	public void setRating(Double rating) {
+		this.rating = rating;
 	}
 	
 }
