@@ -7,6 +7,9 @@ import helperclasses.DateMath;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import appevents.LastMinuteEvent;
+import appevents.EarlyBirdEvent;
+import java.util.ArrayList;
 
 
 rule "Razlika u Danima"
@@ -33,8 +36,14 @@ rule "Last-Minute"
         	&& datumZakazivanja.getMonth() == $trenutniDatum.getMonth()
         	&& datumZakazivanja.getYear() == $trenutniDatum.getYear()
         )
+        Number(intValue < 5) from accumulate(
+            $e1: LastMinuteEvent()
+            over window:time(30m),
+            count($e1)
+        )
     then
     	modify($rezervacija){ setPopust(50); }
+    	insert(new LastMinuteEvent($rezervacija));
         System.out.println("\nRezervacija je pronadjena u okviru Last-Minute rule-a. \nObavljena je danas, "
         					+ $rezervacija.getDatumZakazivanja() + ".\nTada je rezervisan smestaj "
         					+ $rezervacija.getSmestaj().getLokacija().getDrzava() + ".\nNa ovu rezervaciju je dat popust od "
@@ -50,11 +59,49 @@ rule "Early-Bird"
     	$rezervacija : Rezervacija() from $entry.getKey()
     	$razlika : Integer() from $entry.getValue()
     	Boolean(booleanValue == true) from $razlika >= 90
+    	Number(intValue < 15) from accumulate(
+            $e1: EarlyBirdEvent()
+            over window:time(90s),
+            count($e1)
+        )
     then
     	modify($rezervacija){ setPopust(25); }
+    	insert(new EarlyBirdEvent($rezervacija));
     	        System.out.println("\nRezervacija je pronadjena u okviru Early-Bird rule-a. \nObavljena je "
     	       				+ $rezervacija.getDatumZakazivanja() + ", pre " + $razlika + " dana.\nTada je rezervisan smestaj "
         				   	+ $rezervacija.getSmestaj().getLokacija().getDrzava()
         				   	+ ".\nNa ovu rezervaciju je dat popust od " + $rezervacija.getPopust() + "%.");
 
+end
+
+rule "Iskljuci last-minute popuste"
+	when
+		$pronadjeniEventovi : ArrayList(size() >= 5) from accumulate(
+			$e1: LastMinuteEvent()
+            over window:time(30m),
+			init( ArrayList<LastMinuteEvent> eventovi = new ArrayList<LastMinuteEvent>(); ),
+	        action( eventovi.add((LastMinuteEvent)$e1); ),
+	        reverse( eventovi.remove($e1); ),
+	        result( eventovi )
+		)
+		$e2: LastMinuteEvent(getRezervacija().getPopust() != 0)
+	then
+		modify($e2) { getRezervacija().setPopust(0); }
+		System.out.println("Iskljucen last-minute popust za rezervaciju!");
+end
+
+rule "Iskljuci early-bird popuste"
+	when
+		$pronadjeniEventovi : ArrayList(size() >= 15) from accumulate(
+			$e1: EarlyBirdEvent()
+            over window:time(90s),
+			init( ArrayList<EarlyBirdEvent> eventovi = new ArrayList<EarlyBirdEvent>(); ),
+	        action( eventovi.add((EarlyBirdEvent)$e1); ),
+	        reverse( eventovi.remove($e1); ),
+	        result( eventovi )
+		)
+		$e2: EarlyBirdEvent(getRezervacija().getPopust() != 0)
+	then
+		modify($e2) { getRezervacija().setPopust(0); }
+		System.out.println("Iskljucen early-bird popust za rezervaciju!");
 end

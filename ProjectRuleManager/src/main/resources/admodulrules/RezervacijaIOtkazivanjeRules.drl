@@ -1,0 +1,42 @@
+package admodulrules
+
+//list any import classes here.
+
+import containermodel.Rezervacija;
+import mainmodel.Agent;
+import mainmodel.Klijent;
+import mainmodel.Smestaj;
+import appevents.RezervacijaEvent;
+import appevents.OtkazivanjeEvent;
+
+//declare any global variables here
+
+rule "Formiraj prvo Rezervacija Event"
+	when
+		$r1: Rezervacija(
+			$k1: getKlijent(),
+			$s1: getSmestaj()
+		)
+	then
+		insert(new RezervacijaEvent($k1, $s1, $r1));
+		System.out.println("Uspesno napravljen rezervacija event u RezervacijaIOtkazivanjeRules!");
+end
+
+rule "Napravi Otkazivanje Event"
+	when
+		$er1: RezervacijaEvent()
+	then
+		insert(new OtkazivanjeEvent($er1.getKlijent(), $er1.getSmestaj(), $er1.getRezervacija()));
+		System.out.println("Uspesno napravljen otkazivanje event!");
+end
+
+rule "Ukoliko je rezervisao i otkazao, ponudi 40% popusta"
+	when
+		$er1: RezervacijaEvent($r1: getRezervacija())
+		$eo1: OtkazivanjeEvent($r2: getRezervacija(),
+							   $r1.equals($r2),
+							   this meets[10m] $er1)
+	then
+		modify($r1) {setPopust(40);}
+		System.out.println("Uspesno je pruzen popust!");
+end

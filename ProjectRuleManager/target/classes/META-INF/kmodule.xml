@@ -3,11 +3,14 @@
     <kbase name="ruleshelloworld" packages="rules">
         <ksession name="ksession-rules"/>
     </kbase>
-    <kbase name="klmodulrules" packages="klmodulrules">
+    <kbase name="klmodulrules" packages="klmodulrules" eventProcessingMode="stream">
         <ksession name="klijent-modul-rules"/>
     </kbase>
-    <kbase name="admodulrules" packages="admodulrules">
+    <kbase name="admodulrules" packages="admodulrules" eventProcessingMode="stream">
         <ksession name="admin-modul-rules"/>
+    </kbase>
+    <kbase name="agmodulrules" packages="agmodulrules" eventProcessingMode="stream">
+        <ksession name="agent-modul-rules"/>
     </kbase>
     <kbase name="dtables" packages="dtables">
         <ksession name="ksession-dtables"/>

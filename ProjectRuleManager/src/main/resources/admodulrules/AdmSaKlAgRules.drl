@@ -1,0 +1,32 @@
+package admodulrules
+
+//list any import classes here.
+
+import containermodel.Rezervacija;
+import mainmodel.Agent;
+import appevents.ObavestitiAgentaEvent;
+import appevents.RezervacijaEvent;
+
+//declare any global variables here
+
+rule "Formiraj Rezervacija Event samo sa rezervacijom"
+	lock-on-active
+	when
+		$r1: Rezervacija()
+	then
+		insert(new RezervacijaEvent(null, null, $r1));
+		System.out.println("Uspesno napravljen rezervacija event!");
+end
+
+rule "Obavesti agente o povecanju cene"
+	when
+		$a1: Agent()
+		Number(intValue >= 20) from accumulate(
+            $r1: RezervacijaEvent()
+            over window:time(3h),
+            count($r1)
+        )
+	then
+		insert(new ObavestitiAgentaEvent($a1, "Povecaj cenu!"));
+		System.out.println("Agent je obavesten!");
+end

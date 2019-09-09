@@ -1,0 +1,154 @@
+package agmodulrules
+
+//list any import classes here.
+
+import appevents.RezervacijaEvent;
+import appevents.ObavestitiKlijentaEvent;
+import appevents.ObavestitiAgentaEvent;
+import appevents.PorukaOdKlijentaEvent;
+import containermodel.Rezervacija;
+import containermodel.MainContainer;
+import mainmodel.Agent;
+import mainmodel.Klijent;
+import mainmodel.Smestaj;
+import java.util.ArrayList;
+
+//declare any global variables here
+
+global Integer brojInterakcija;
+
+rule "Formiraj Rezervacija Event"
+	lock-on-active
+	when
+		$k1: Klijent()
+		$s1: Smestaj()
+		$r1: Rezervacija(
+			$r1.hasKlijent($k1) == true &&
+			$r1.hasSmestaj($s1) == true
+		)
+	then
+		insert(new RezervacijaEvent($k1, $s1, $r1));
+		System.out.println("Uspesno napravljen rezervacija event!");
+end
+
+rule "Upozoriti klijenta za na vecu cenu"
+	when
+		$a1: Agent()
+		$re: RezervacijaEvent(
+			$k1: getKlijent(),
+			$s1: getSmestaj(),
+			$r1: getRezervacija(),
+			$s1.getVOdRez() >= 15		
+		)
+		$s2: Smestaj(
+			$s1.equals($s2) == false &&
+			$s1.getLokacija().equals($s2.getLokacija) &&
+			$s1.getProsek() > $s2.getProsek()
+		)
+	then
+		insert(new ObavestitiAgentaEvent($a1, "Postoji smestaj sa nizom cenom na ovoj lokaciji!"));
+		System.out.println("Uspesno obavesten agent!");
+end
+
+rule "Klijent salje zahteve"
+	when
+		RezervacijaEvent(
+			$k1: getKlijent(),
+			$s1: getSmestaj()
+		)
+	then
+		insert(new PorukaOdKlijentaEvent($k1, $s1, "Hocu produzetak boravka!"));
+		System.out.println("Klijent je podneo zahtev za produzenje boravka!");
+		insert(new PorukaOdKlijentaEvent($k1, "Hocu da mi se poveca popust!"));
+		insert(new PorukaOdKlijentaEvent($k1, "Hocu vise osoba!"));
+		insert(new PorukaOdKlijentaEvent($k1, $s1, "Hocu vise mesta u smestaju!"));
+end
+
+rule "Obavesti agenta da promeni cenu"
+	when
+	$a1: Agent()
+	PorukaOdKlijentaEvent($s1: getSmestaj(), poruka == "Hocu produzetak boravka!")
+	then
+	insert(new ObavestitiAgentaEvent($a1, $s1, "Promeni cenu!"));
+	System.out.println("Agent je obavesten da promeni cenu!");
+end
+
+rule "Ukoliko su smestaji slobodni, daj popust"
+	when
+		$mainContainer: MainContainer()
+		ObavestitiAgentaEvent($s1: getSmestaj(),
+							  poruka == "Promeni cenu!")
+		$smestajiUOkolini: ArrayList()
+		$brojZauzetih : Number(intValue < 1) from accumulate(
+			$s2: Smestaj($mainContainer.smestajJeZauzet($s2) == true) from $smestajiUOkolini,
+			init( int n = 0; ),
+	        action( n++; ),
+	        reverse( n--; ),
+	        result( n )
+		)	
+	then
+		modify($s1) {setPopust(10);}
+		System.out.println("Uspesno dat popust!");
+end
+
+rule "Ukoliko su smestaji zauzeti, povecaj cenu"
+	when
+		$mainContainer: MainContainer()
+		ObavestitiAgentaEvent($s1: getSmestaj(),
+							  poruka == "Promeni cenu!")
+		$smestajiUOkolini: ArrayList($br: size())
+		$brojZauzetih : Number(intValue >= $br) from accumulate(
+			$s2: Smestaj($mainContainer.smestajJeZauzet($s2) == true) from $smestajiUOkolini,
+			init( int n = 0; ),
+	        action( n++; ),
+	        reverse( n--; ),
+	        result( n )
+		)	
+	then
+		modify($s1) {setPopust(-10);}
+		System.out.println("Uspesno dato povecanje!");
+end
+
+rule "Odbij klijenta"
+	when
+		PorukaOdKlijentaEvent($poruka: getPoruka())
+		$a1: Agent(containsBadPhrases($poruka))
+	then
+		System.out.println("Odbio sam zahtev od klijenta!");
+end
+
+rule "Povecaj cenu na smestaj"
+	when
+		$a1: Agent()
+		PorukaOdKlijentaEvent($s1: getSmestaj(), poruka == "Hocu vise mesta u smestaju!")
+	then
+		modify($s1) {setPopust(-30);}
+		System.out.println("Uspesno dato povecanje nakon zahteva!");
+end
+
+rule "Daj popust za vise interakcija"
+	when
+		$a1: Agent()
+		RezervacijaEvent(
+			$k1: getKlijent(),
+			$s1: getSmestaj()
+		)
+		Number(intValue >= 3) from accumulate(
+	            $pok: PorukaOdKlijentaEvent($k2: getKlijent(),
+	            							$k2.equals($k1) ),
+	            count($pok)
+	    )
+	then
+		modify($s1) {setPopust(30);}
+		System.out.println("Uspesno dat popust na vise interakcija!");
+end
+
+rule "Predloziti popust"
+	lock-on-active
+	when
+		$mainContainer: MainContainer()
+		$s1: Smestaj($mainContainer.smestajJeZauzet($s1) == false)
+	then
+		modify($s1) {setPopust($mainContainer.odrediPopustNaOsnovuSlicnih($s1));}
+		System.out.println("Uspesno predlozen popust od " + $s1.getPopust() + "%!");
+end

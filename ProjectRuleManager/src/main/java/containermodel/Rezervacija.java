@@ -150,4 +150,18 @@ public class Rezervacija {
 	public void setUkupnaCena(Double ukupnaCena) {
 		this.ukupnaCena = ukupnaCena;
 	}
+	
+	public boolean hasKlijent(Klijent k) {
+		if(this.klijent.equals(k)) {
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean hasSmestaj(Smestaj s) {
+		if(this.smestaj.equals(s)) {
+			return true;
+		}
+		return false;
+	}
 }

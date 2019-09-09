@@ -5,6 +5,7 @@ package admodulrules
 import mainmodel.Klijent;
 import mainmodel.Smestaj;
 import mainmodel.Kategorija;
+import mainmodel.Kupon;
 import containermodel.Rezervacija;
 import java.util.HashMap;
 import java.util.Map;
@@ -133,4 +134,22 @@ rule "Dodeli Klijentu PLATINUM"
     	System.out.println("Stara kategorija mu je " + $klijent.getKategorija() + ".");
     	modify($klijent) {setKategorija(Kategorija.PLATINUM);}
         System.out.println("Nakon izmene, nova kategorija mu je " + $klijent.getKategorija() + ".");
+end
+
+rule "Gold dobija kupon od 10%"
+	no-loop
+	when
+		$klijent : Klijent(kategorija == Kategorija.GOLD)
+	then
+		modify($klijent) {giveKupon(new Kupon(10));}
+		System.out.println("GOLD JE DOBIO KUPON!");
+end
+
+rule "Platinum dobija kupon od 30%"
+	no-loop
+	when
+		$klijent : Klijent(kategorija == Kategorija.PLATINUM)
+	then
+		modify($klijent) {giveKupon(new Kupon(30));}
+		System.out.println("PLATINUM JE DOBIO KUPON!");
 end

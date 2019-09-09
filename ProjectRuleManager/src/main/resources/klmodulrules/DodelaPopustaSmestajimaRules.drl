@@ -1,0 +1,32 @@
+package klmodulrules
+
+import java.util.Date;
+import containermodel.Rezervacija;
+import containermodel.MainContainer;
+import mainmodel.Smestaj;
+import mainmodel.Klijent;
+import helperclasses.DateMath;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
+rule "Popust Za Smestaj, Ucestali Boravak"
+	lock-on-active
+	when
+		$mainContainer: MainContainer()
+		$smestaj: Smestaj($smestaj.getRating() == null && $mainContainer.klBoraviloVisePuta($smestaj,6) >= 3)
+	then
+		modify($smestaj) {setPopust(60);}
+		System.out.println("Trenutni popust na smestaj je " + $smestaj.getPopust() + ".\n");
+end
+
+rule "Popust Za Smestaj, Posetio Vise Mesta"
+	lock-on-active
+	when
+		$klijent: Klijent()
+		$smestaj: Smestaj($smestaj.getRating() == null)
+		$mainContainer: MainContainer($mainContainer.brojRazlicitihPoseta($klijent) >= 2 && $mainContainer.klijentPosetioSmestaj($klijent,$smestaj) == false)
+	then
+		modify($smestaj) {setPopust(80);}
+		System.out.println("Trenutni popust na smestaj je " + $smestaj.getPopust() + ".\n");
+end

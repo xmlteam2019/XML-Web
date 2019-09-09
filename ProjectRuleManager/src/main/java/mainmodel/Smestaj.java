@@ -3,6 +3,8 @@ package mainmodel;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class Smestaj {
 	
@@ -30,14 +32,24 @@ public class Smestaj {
 	private String opis;
 	private ArrayList<String> slike;
 	private int brojOsoba;
-	private HashMap<Usluga, Boolean> dodatneUsluge;
+	private HashMap<Usluga, Boolean> dodatneUsluge = new HashMap<Usluga,Boolean>();
 	private Date datumOdrzavanja;
 	private HashMap<Meseci, Integer> terminskiPlanCena;
 	private Kategorija kategorija;
 	private Double rating = null;
+	private int popust = 0;
+	private Double prosek = 0.0;
+	private int vOdRez = 0;
+
+	public void populateUsluge() {
+		for(Usluga usluga : Usluga.values()){
+			dodatneUsluge.put(usluga, false);
+		}
+	}
 	
 	public Smestaj() {
 		kategorija = Kategorija.BRONZE;
+		populateUsluge();
 	}
 	
 	public Smestaj(Lokacija lokacija) {
@@ -50,6 +62,7 @@ public class Smestaj {
 		datumOdrzavanja = new Date();
 		terminskiPlanCena = new HashMap<Meseci, Integer>();
 		kategorija = Kategorija.BRONZE;
+		populateUsluge();
 	}
 	
 	public Smestaj(Lokacija lokacija, Kategorija kategorija) {
@@ -62,6 +75,7 @@ public class Smestaj {
 		datumOdrzavanja = new Date();
 		terminskiPlanCena = new HashMap<Meseci, Integer>();
 		this.kategorija = kategorija;
+		populateUsluge();
 	}
 	
 	public Smestaj(Lokacija lokacija, TipSmestaja tipSmestaja, String opis, ArrayList<String> slike, int brojOsoba,
@@ -104,6 +118,7 @@ public class Smestaj {
 		terminskiPlanCena = new HashMap<Meseci, Integer>();
 		kategorija = Kategorija.BRONZE;
 		rating = i;
+		populateUsluge();
 	}
 
 	public Lokacija getLokacija() {
@@ -171,4 +186,44 @@ public class Smestaj {
 		this.rating = rating;
 	}
 	
+	public void pruziUsluge(ArrayList<Usluga> usluge) {
+		Iterator i = usluge.iterator();
+		while (i.hasNext()) {
+			dodatneUsluge.replace((Usluga) i.next(),true);
+	    }
+	}
+	
+	public void setPopust(int popust) {
+		this.popust = popust;
+	}
+	
+	public int getPopust() {
+		return popust;
+	}
+	
+	public Double calculateProsek() {
+		int prosek = 0;
+		Iterator it = terminskiPlanCena.entrySet().iterator();
+		while (it.hasNext()) {
+			 Map.Entry pair = (Map.Entry)it.next();
+			 prosek += (Integer) pair.getValue();
+	      }
+		return (double) prosek/(terminskiPlanCena.size()); 
+	}
+
+	public Double getProsek() {
+		return prosek;
+	}
+
+	public void setTestProsek(Double prosek) {
+		this.prosek = prosek;
+	}
+	
+	public int getVOdRez() {
+		return vOdRez;
+	}
+
+	public void setTestVOdRez(int vOdRez) {
+		this.vOdRez = vOdRez;
+	}
 }

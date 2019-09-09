@@ -1,5 +1,6 @@
 package mainmodel;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import helperclasses.DateMath;
@@ -8,6 +9,7 @@ public class Klijent extends Osoba {
 
 	private Kategorija kategorija;
 	private Date datumRegistracije = new Date();
+	private ArrayList<Kupon> kuponi = new ArrayList<Kupon>();
 	
 	public Klijent() {
 		kategorija = Kategorija.BRONZE;
@@ -57,6 +59,10 @@ public class Klijent extends Osoba {
 	public void unesiDatumPrekoStringa(String string) {
 		datumRegistracije = DateMath.getDateFromString(string);
 		
+	}
+	
+	public void giveKupon(Kupon k) {
+		kuponi.add(k);
 	}
 	
 }

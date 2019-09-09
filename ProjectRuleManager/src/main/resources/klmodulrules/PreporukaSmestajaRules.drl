@@ -14,6 +14,28 @@ import java.util.Iterator;
 //global Point2D izabranaLokacija;
 //global HashMap<Smestaj, Double> distanceOdMesta;
 
+rule "Nadji Presek Usluga"
+	when
+		$mainContainer: MainContainer()
+		$klijent: Klijent()
+		$recommendedSmestaji0: ArrayList() from accumulate(
+		$smestaj : Smestaj() from $mainContainer.getSmestajContainer(),
+	        init( ArrayList<Smestaj> recommendedSmestaji0 = new ArrayList<Smestaj>(); ),
+	        action( 
+	        		if($mainContainer.smestajSadrziUsluge($klijent,$smestaj) == true) {
+	        			recommendedSmestaji0.add($smestaj);       
+	        		} 
+	        ),
+	        reverse( recommendedSmestaji0.remove($smestaj); ),
+	        result( recommendedSmestaji0 )
+	    )
+	then
+	System.out.println("\nNakon filtriranja po preseku usluga, broj rezultata je " + $recommendedSmestaji0.size() + ".");
+        //System.out.println("\nPredlozeni smestaji su: ");
+		//insert($recommendedSmestaji);
+end
+	
+
 rule "Popunjavanje Mape Distanci"
 lock-on-active 
     when
